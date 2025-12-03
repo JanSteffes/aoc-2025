@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.0.11222.15 d18.0
+VisualStudioVersion = 18.0.11222.15
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "aoc-2025", "aoc-2025.csproj", "{B658D66A-4E50-4C8E-9BA3-49D42709D431}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "aoc-2025.Tests", "..\aoc-2025.Tests\aoc-2025.Tests.csproj", "{3B59F6D0-31BA-4A5E-BB7F-9A81473808C8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,8 +17,15 @@ Global
 		{B658D66A-4E50-4C8E-9BA3-49D42709D431}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B658D66A-4E50-4C8E-9BA3-49D42709D431}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B658D66A-4E50-4C8E-9BA3-49D42709D431}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B59F6D0-31BA-4A5E-BB7F-9A81473808C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B59F6D0-31BA-4A5E-BB7F-9A81473808C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B59F6D0-31BA-4A5E-BB7F-9A81473808C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B59F6D0-31BA-4A5E-BB7F-9A81473808C8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C1448388-742E-45F9-8B0B-C5C0E2AB1E8E}
 	EndGlobalSection
 EndGlobal
