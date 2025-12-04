@@ -1,4 +1,5 @@
 using aoc_2025.Interfaces;
+using System.Collections.Concurrent;
 using System.Text.RegularExpressions;
 
 namespace aoc_2025.Solutions;
@@ -24,14 +25,16 @@ public class Solution02 : ISolution
     {
         var ranges = inputData.Split(',').Select(Range.FromString).ToList();
         var sum = 0L;
-        foreach (var range in ranges)
+        var invalidIdsBag = new ConcurrentBag<long>();
+        Parallel.ForEach(ranges, range =>
         {
-            var invalidIdsInRange = range.GetMoreInvalidIds();
+            var invalidIdsInRange = range.GetMoreInvalidIdsSlow();
             foreach (var invalidId in invalidIdsInRange)
             {
-                sum += invalidId;
+                invalidIdsBag.Add(invalidId);
             }
-        }
+        });
+        sum = invalidIdsBag.Sum();
         return sum.ToString();
     }
 
@@ -80,13 +83,11 @@ class Range
         return invalidIds;
     }
 
-    internal List<long> GetMoreInvalidIds()
+    internal List<long> GetMoreInvalidIdsSlow()
     {
-        //Debug.WriteLine("CheckForInvalidIds in range " + this);
         var invalidIds = new List<long>();
         for (var currentNumber = Start; currentNumber <= End; currentNumber++)
         {
-            //Debug.WriteLine("Test for number " + currentNumber);
             var asString = currentNumber.ToString();
             var length = asString.Length;
             var maxLength = length / 2;
@@ -98,7 +99,6 @@ class Range
                 var regex = new Regex(regexString);
                 if (regex.IsMatch(asString))
                 {
-                    //Debug.WriteLine("Found invalidId: " + asString);
                     found = true;
                     invalidIds.Add(currentNumber);
                 }
