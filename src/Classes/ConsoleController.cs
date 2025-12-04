@@ -1,4 +1,5 @@
 ﻿using aoc_2025.AocClient;
+using aoc_2025.GridUtils;
 using aoc_2025.Interfaces;
 using Spectre.Console;
 
@@ -44,7 +45,10 @@ public class ConsoleController : IController
             switch (mode)
             {
                 case Mode.Run:
+                    bool prevRunGridPrint;
+                    this.ToggleGridPrint(out prevRunGridPrint, false);
                     this.SelectAndRunDay();
+                    this.ToggleGridPrint(out _, prevRunGridPrint);
                     break;
                 case Mode.Test:
                     this.SelectAndRunTest();
@@ -56,7 +60,13 @@ public class ConsoleController : IController
                     this.RunLastCommand();
                     break;
                 case Mode.Check:
+                    bool prevCheckGridPrint;
+                    this.ToggleGridPrint(out prevCheckGridPrint, false);
                     this.CheckSolutions();
+                    this.ToggleGridPrint(out _, prevCheckGridPrint);
+                    break;
+                case Mode.ToggleGridPrint:
+                    this.ToggleGridPrint(out _);
                     break;
                 case Mode.Exit:
                     shouldExit = true;
@@ -123,7 +133,7 @@ public class ConsoleController : IController
 
     private Mode SelectMode()
     {
-        string[] baseChoices = new List<Mode> { Mode.Run, Mode.Test, Mode.Init, Mode.Check, Mode.Exit }
+        string[] baseChoices = new List<Mode> { Mode.Run, Mode.Test, Mode.Init, Mode.Check, Mode.ToggleGridPrint, Mode.Exit }
             .Select(m => m.ToString())
             .ToArray();
 
@@ -154,6 +164,12 @@ public class ConsoleController : IController
             .Title("[bold]Part selection[/]")
             .AddChoices(Enum.GetValues<Part>())
             );
+    }
+
+    private void ToggleGridPrint(out bool previous, bool? valueToSet = null)
+    {
+        previous = GridOutputExtensions.Print;
+        GridOutputExtensions.Print = valueToSet ?? !GridOutputExtensions.Print;
     }
 
     private void CheckSolutions()

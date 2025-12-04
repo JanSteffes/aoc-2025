@@ -7,18 +7,20 @@ namespace aoc_2025.Solutions
 {
     public class Solution04 : ISolution
     {
+        private const char freeSymbol = '.';
+        private const char occupiedSymbol = '@';
+
+        private static readonly Dictionary<char, ConsoleColor> symbolToColorMapping = new()
+        {
+                { freeSymbol, ConsoleColor.Gray },
+                { occupiedSymbol, ConsoleColor.White }
+        };
+
         public string RunPartA(string inputData)
         {
             var input = ParseUtils.ParseIntoLines(inputData).Select(s => s.Select(c => c).ToArray()).ToArray();
             var myGrid = Grid<char>.FromLines(input);
-            var freeSymbol = '.';
-            var occupiedSymbol = '@';
-            var colorDict = new Dictionary<char, ConsoleColor>
-            {
-                { freeSymbol, ConsoleColor.Gray },
-                { occupiedSymbol, ConsoleColor.White }
-            };
-            //myGrid.PrintColoredMap(colorDict);
+            myGrid.PrintColoredMap(symbolToColorMapping);
             var maxCountToHave = 4;
             var count = 0;
             for (var x = 0; x < myGrid.MaxX; x++)
@@ -39,16 +41,9 @@ namespace aoc_2025.Solutions
         {
             var input = ParseUtils.ParseIntoLines(inputData).Select(s => s.Select(c => c).ToArray()).ToArray();
             var myGrid = Grid<char>.FromLines(input);
-            var freeSymbol = '.';
-            var occupiedSymbol = '@';
             var maxCountToHave = 4;
             var count = 0;
-            var colorDict = new Dictionary<char, ConsoleColor>
-            {
-                { freeSymbol, ConsoleColor.Gray },
-                { occupiedSymbol, ConsoleColor.White }
-            };
-            //myGrid.PrintColoredMap(colorDict);
+            myGrid.PrintColoredMap(symbolToColorMapping);
             while (GetRolesToRemove(myGrid, freeSymbol, occupiedSymbol, maxCountToHave) is List<Point> rolesToRemoveList && rolesToRemoveList.Count > 0)
             {
                 count += rolesToRemoveList.Count;
@@ -56,7 +51,7 @@ namespace aoc_2025.Solutions
                 {
                     myGrid.SetEntryAt(role, freeSymbol);
                 }
-                //myGrid.PrintColoredMap(colorDict);
+                myGrid.PrintColoredMap(symbolToColorMapping);
             }
             return count.ToString();
         }

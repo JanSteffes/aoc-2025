@@ -13,6 +13,7 @@ public enum Mode
     Test,
     Init,
     Check,
+    ToggleGridPrint,
     Exit
 }
 
