@@ -1,3 +1,4 @@
+using aoc_2025.GridUtils;
 using aoc_2025.Interfaces;
 using aoc_2025.SolutionUtils;
 using System.Drawing;
@@ -12,15 +13,19 @@ namespace aoc_2025.Solutions
             var myGrid = Grid<char>.FromLines(input);
             var freeSymbol = '.';
             var occupiedSymbol = '@';
+            var colorDict = new Dictionary<char, ConsoleColor>
+            {
+                { freeSymbol, ConsoleColor.Gray },
+                { occupiedSymbol, ConsoleColor.White }
+            };
+            //myGrid.PrintColoredMap(colorDict);
             var maxCountToHave = 4;
-            //TODO: foreach entry, check positions x-1,y-1 to x+1,y+1 how many roles there are
-            // if < 4, increase count
             var count = 0;
             for (var x = 0; x < myGrid.MaxX; x++)
             {
                 for (var y = 0; y < myGrid.MaxY; y++)
                 {
-                    var countUp = Check(myGrid, x, y, freeSymbol, occupiedSymbol, maxCountToHave);
+                    var countUp = RoleCanBeRemoved(myGrid, x, y, freeSymbol, occupiedSymbol, maxCountToHave);
                     if (countUp)
                     {
                         count++;
@@ -30,7 +35,50 @@ namespace aoc_2025.Solutions
             return count.ToString();
         }
 
-        private bool Check(Grid<char> myGrid, int x, int y, char freeSymbol, char occupiedSymbol, int maxCountToHave)
+        public string RunPartB(string inputData)
+        {
+            var input = ParseUtils.ParseIntoLines(inputData).Select(s => s.Select(c => c).ToArray()).ToArray();
+            var myGrid = Grid<char>.FromLines(input);
+            var freeSymbol = '.';
+            var occupiedSymbol = '@';
+            var maxCountToHave = 4;
+            var count = 0;
+            var colorDict = new Dictionary<char, ConsoleColor>
+            {
+                { freeSymbol, ConsoleColor.Gray },
+                { occupiedSymbol, ConsoleColor.White }
+            };
+            //myGrid.PrintColoredMap(colorDict);
+            while (GetRolesToRemove(myGrid, freeSymbol, occupiedSymbol, maxCountToHave) is List<Point> rolesToRemoveList && rolesToRemoveList.Count > 0)
+            {
+                count += rolesToRemoveList.Count;
+                foreach (var role in rolesToRemoveList)
+                {
+                    myGrid.SetEntryAt(role, freeSymbol);
+                }
+                //myGrid.PrintColoredMap(colorDict);
+            }
+            return count.ToString();
+        }
+
+        private static List<Point> GetRolesToRemove(Grid<char> myGrid, char freeSymbol, char occupiedSymbol, int maxCountToHave)
+        {
+            var rolesToRemove = new List<Point>();
+            for (var x = 0; x < myGrid.MaxX; x++)
+            {
+                for (var y = 0; y < myGrid.MaxY; y++)
+                {
+                    var countUp = RoleCanBeRemoved(myGrid, x, y, freeSymbol, occupiedSymbol, maxCountToHave);
+                    if (countUp)
+                    {
+                        rolesToRemove.Add(new Point(x, y));
+                    }
+                }
+            }
+            return rolesToRemove;
+        }
+
+        private static bool RoleCanBeRemoved(Grid<char> myGrid, int x, int y, char freeSymbol, char occupiedSymbol, int maxCountToHave)
         {
             var currentSymbol = myGrid.GetEntryAt(x, y);
             if (currentSymbol == freeSymbol)
@@ -62,114 +110,5 @@ namespace aoc_2025.Solutions
             }
             return true;
         }
-
-        public string RunPartB(string inputData)
-        {
-            var input = ParseUtils.ParseIntoLines(inputData).Select(s => s.Select(c => c).ToArray()).ToArray();
-            var myGrid = Grid<char>.FromLines(input);
-            var freeSymbol = '.';
-            var occupiedSymbol = '@';
-            var maxCountToHave = 4;
-            //TODO: foreach entry, check positions x-1,y-1 to x+1,y+1 how many roles there are
-            // if < 4, increase count
-            var count = 0;
-            while (GetRolesToRemove(myGrid, freeSymbol, occupiedSymbol, maxCountToHave) is List<Point> rolesToRemoveList && rolesToRemoveList.Count > 0)
-            {
-                count += rolesToRemoveList.Count;
-                foreach (var role in rolesToRemoveList)
-                {
-                    myGrid.SetEntryAt(role, freeSymbol);
-                }
-            }
-            return count.ToString();
-        }
-
-        private List<Point> GetRolesToRemove(Grid<char> myGrid, char freeSymbol, char occupiedSymbol, int maxCountToHave)
-        {
-            var rolesToRemove = new List<Point>();
-            for (var x = 0; x < myGrid.MaxX; x++)
-            {
-                for (var y = 0; y < myGrid.MaxY; y++)
-                {
-                    var countUp = Check(myGrid, x, y, freeSymbol, occupiedSymbol, maxCountToHave);
-                    if (countUp)
-                    {
-                        rolesToRemove.Add(new Point(x, y));
-                    }
-                }
-            }
-            return rolesToRemove;
-        }
-    }
-
-    public class Grid<T>
-    {
-        /// <summary>
-        /// holds rows with columns, e.g. 1(x) , 5(y) is GrindEntris[1][5]
-        /// </summary>
-        public T[][] GridEntries { get; }
-
-        public int MaxX { get; }
-
-        public int MaxY { get; }
-
-        public Grid(int rows, int columns)
-        {
-            MaxY = columns;
-            MaxX = rows;
-            GridEntries = new T[columns][];
-            for (var column = 0; column < columns; column++)
-            {
-                GridEntries[column] = new T[rows];
-            }
-        }
-
-        public T GetEntryAt(int x, int y)
-        {
-            return GridEntries[y][x];
-        }
-
-        public void SetEntryAt(int x, int y, T entry)
-        {
-            GridEntries[y][x] = entry;
-        }
-
-        public static Grid<T> FromLines(T[][] lines)
-        {
-            var y = lines.Length;
-            var x = lines[0].Length;
-            var grid = new Grid<T>(x, y);
-            var currentY = 0;
-            while (currentY < y)
-            {
-                var currentX = 0;
-                while (currentX < x)
-                {
-                    grid.SetEntryAt(currentX, currentY, lines[currentY][currentX]);
-                    currentX++;
-                }
-                currentY++;
-            }
-            return grid;
-        }
-
-        internal bool HasEntryAt(int x, int y)
-        {
-            return x >= 0 && x < MaxX && y >= 0 && y < MaxY;
-        }
-    }
-
-    public static class GridExtensions
-    {
-        public static T GetEntryAt<T>(this Grid<T> grid, Point point)
-        {
-            return grid.GetEntryAt(point.X, point.Y);
-        }
-
-        public static void SetEntryAt<T>(this Grid<T> grid, Point point, T entry)
-        {
-            grid.SetEntryAt(point.X, point.Y, entry);
-        }
-
     }
 }
