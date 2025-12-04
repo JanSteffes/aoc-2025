@@ -33,6 +33,8 @@ namespace aoc_2025.Tests
         //[TestCase("12", 1, "B")]
         public void TestCaseTests(int day, int testNumber, string part)
         {
+            OnlyRunIfDayReached(day);
+
             // arrange
             var solutionClass = GetSolutionClass(day);
 
@@ -75,6 +77,8 @@ namespace aoc_2025.Tests
         //[TestCase("12", 1, "B", "TODO", 1)]        
         public void InputCaseTests(int day, int testNumber, string part, string expectedResult, int maxSecondsToRun)
         {
+            OnlyRunIfDayReached(day);
+
             // arrange
             var solutionClass = GetSolutionClass(day);
 
@@ -93,6 +97,14 @@ namespace aoc_2025.Tests
                 Assert.That(result, Is.EqualTo(expectedResult));
                 Assert.That(sw.Elapsed.TotalSeconds, Is.LessThanOrEqualTo(maxSecondsToRun));
             });
+        }
+
+        private static void OnlyRunIfDayReached(int day)
+        {
+            if (DateTime.UtcNow < new DateTime(2025, 12, day))
+            {
+                Assert.Ignore();
+            }
         }
 
         private static ISolution GetSolutionClass(int day)
