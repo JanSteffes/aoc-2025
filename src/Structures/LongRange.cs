@@ -20,5 +20,10 @@
         {
             return Start + " to " + End;
         }
+
+        public bool IsInRange(long value)
+        {
+            return value >= Start && value <= End;
+        }
     }
 }
