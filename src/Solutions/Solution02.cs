@@ -1,4 +1,5 @@
 using aoc_2025.Interfaces;
+using aoc_2025.Structures;
 using System.Collections.Concurrent;
 using System.Text.RegularExpressions;
 
@@ -8,7 +9,7 @@ public class Solution02 : ISolution
 {
     public string RunPartA(string inputData)
     {
-        var ranges = inputData.Split(',').Select(Range.FromString).ToList();
+        var ranges = inputData.Split(',').Select(LongRange.FromString).ToList();
         var sum = 0L;
         foreach (var range in ranges)
         {
@@ -21,9 +22,10 @@ public class Solution02 : ISolution
         return sum.ToString();
     }
 
+    // TODO make this faster!
     public string RunPartB(string inputData)
     {
-        var ranges = inputData.Split(',').Select(Range.FromString).ToList();
+        var ranges = inputData.Split(',').Select(LongRange.FromString).ToList();
         var sum = 0L;
         var invalidIdsBag = new ConcurrentBag<long>();
         Parallel.ForEach(ranges, range =>
@@ -40,31 +42,12 @@ public class Solution02 : ISolution
 
 }
 
-class Range
+internal static class RangeExtensions
 {
-    public long Start { get; set; }
-
-    public long End { get; set; }
-
-    public static Range FromString(string s)
-    {
-        var values = s.Split('-');
-        return new Range
-        {
-            Start = long.Parse(values[0]),
-            End = long.Parse(values[1])
-        };
-    }
-
-    public override string ToString()
-    {
-        return Start + " to " + End;
-    }
-
-    internal List<long> GetInvalidIds()
+    internal static List<long> GetInvalidIds(this LongRange range)
     {
         var invalidIds = new List<long>();
-        for (var currentNumber = Start; currentNumber <= End; currentNumber++)
+        for (var currentNumber = range.Start; currentNumber <= range.End; currentNumber++)
         {
             var asString = currentNumber.ToString();
             var length = asString.Length;
@@ -83,10 +66,10 @@ class Range
         return invalidIds;
     }
 
-    internal List<long> GetMoreInvalidIdsSlow()
+    internal static List<long> GetMoreInvalidIdsSlow(this LongRange range)
     {
         var invalidIds = new List<long>();
-        for (var currentNumber = Start; currentNumber <= End; currentNumber++)
+        for (var currentNumber = range.Start; currentNumber <= range.End; currentNumber++)
         {
             var asString = currentNumber.ToString();
             var length = asString.Length;

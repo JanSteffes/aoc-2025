@@ -1,4 +1,4 @@
-namespace aoc_2025.GridUtils
+namespace aoc_2025.Structures
 {
     public class Grid<T>
     {

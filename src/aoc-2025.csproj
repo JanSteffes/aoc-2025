@@ -20,6 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="GridUtils\" />
     <Folder Include="Inputs\" />
     <Folder Include="Notizen\Solution03\" />
     <Folder Include="ProgramUtils\" />

@@ -1,6 +1,6 @@
 ﻿using aoc_2025.AocClient;
-using aoc_2025.GridUtils;
 using aoc_2025.Interfaces;
+using aoc_2025.StructureExtensions.Grid;
 using Spectre.Console;
 
 namespace aoc_2025.Classes;

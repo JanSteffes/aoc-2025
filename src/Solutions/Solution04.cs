@@ -1,6 +1,7 @@
-using aoc_2025.GridUtils;
 using aoc_2025.Interfaces;
 using aoc_2025.SolutionUtils;
+using aoc_2025.StructureExtensions.Grid;
+using aoc_2025.Structures;
 using System.Drawing;
 
 namespace aoc_2025.Solutions

@@ -1,6 +1,7 @@
+using aoc_2025.Structures;
 using System.Drawing;
 
-namespace aoc_2025.GridUtils
+namespace aoc_2025.StructureExtensions.Grid
 {
     public static class GridOutputExtensions
     {
