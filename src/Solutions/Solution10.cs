@@ -1,4 +1,3 @@
-using System;
 using aoc_2025.Interfaces;
 
 namespace aoc_2025.Solutions
