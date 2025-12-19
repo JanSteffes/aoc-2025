@@ -1,11 +1,18 @@
 TestNumber=
 1
 AnswerA=
-[Empty]
+50
 AnswerB=
 [Empty]
 Input=
-[Empty]
+7,1
+11,1
+11,7
+9,7
+9,5
+2,5
+2,3
+7,3
 
 ================================
 
