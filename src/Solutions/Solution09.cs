@@ -44,8 +44,8 @@ namespace aoc_2025.Solutions
 
         private long CalculateArea(Point position, Point otherPosition)
         {
-            var xLength = Math.Max(position.X, otherPosition.X) - Math.Min(position.X, otherPosition.X) + 1;
-            var yLength = Math.Max(position.Y, otherPosition.Y) - Math.Min(position.Y, otherPosition.Y) + 1;
+            var xLength = (long)Math.Abs(position.X - otherPosition.X) + 1;
+            var yLength = (long)Math.Abs(position.Y - otherPosition.Y) + 1;
             return xLength * yLength;
         }
     }
