@@ -66,7 +66,7 @@ namespace aoc_2025.Solutions
             var highest = Batteries.SkipLast(remainingNumberLength).MaxBy(j => j.JoltageRating);
             var indexOfHighest = Batteries.IndexOf(highest);
             //Debug.WriteLine("Found highest " + hihghest + " at index " + indexOfHighest);
-            var result = highest.JoltageRating.ToString();
+            var result = highest!.JoltageRating.ToString();
             while (remainingNumberLength-- > 0)
             {
                 //Debug.WriteLine("Will skip last " + --indexToExclude);
@@ -92,11 +92,11 @@ namespace aoc_2025.Solutions
             }
             else
             {
-                batteryWithHighestFollowupNumber = Batteries.Skip(indexOfHighestBatteryNumber).Except([batteryWithHighestNumber]).MaxBy(b => b.JoltageRating);
+                batteryWithHighestFollowupNumber = Batteries.Skip(indexOfHighestBatteryNumber).Except([batteryWithHighestNumber]).MaxBy(b => b!.JoltageRating);
             }
             if (batteryWithHighestNumber == batteryWithHighestFollowupNumber)
             {
-                batteryWithHighestNumber = Batteries.Except([batteryWithHighestFollowupNumber]).MaxBy(b => b.JoltageRating);
+                batteryWithHighestNumber = Batteries.Except([batteryWithHighestFollowupNumber]).MaxBy(b => b!.JoltageRating);
             }
             var result = long.Parse(batteryWithHighestNumber!.JoltageRating.ToString() + batteryWithHighestFollowupNumber!.JoltageRating.ToString());
             //Debug.WriteLine("Bank: " + this);

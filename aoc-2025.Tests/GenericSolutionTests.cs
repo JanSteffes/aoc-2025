@@ -67,7 +67,7 @@ namespace aoc_2025.Tests
         [TestCase("7", 1, "B", "13418215871354", 1)]
         [TestCase("8", 1, "A", "98696", 1)]
         [TestCase("8", 1, "B", "2245203960", 1)]
-        [TestCase("9", 1, "A", "TODO", 1)]
+        [TestCase("9", 1, "A", "4754955192", 1)]
         [TestCase("9", 1, "B", "TODO", 1)]
         [TestCase("10", 1, "A", "TODO", 1)]
         [TestCase("10", 1, "B", "TODO", 1)]

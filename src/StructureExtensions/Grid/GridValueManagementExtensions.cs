@@ -1,5 +1,5 @@
 using aoc_2025.Structures;
-using System.Drawing;
+using SixLabors.ImageSharp;
 
 namespace aoc_2025.StructureExtensions.Grid
 {

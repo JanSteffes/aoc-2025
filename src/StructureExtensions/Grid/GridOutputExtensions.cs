@@ -1,5 +1,8 @@
 using aoc_2025.Structures;
-using System.Drawing;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Png;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
 
 namespace aoc_2025.StructureExtensions.Grid
 {
@@ -29,6 +32,34 @@ namespace aoc_2025.StructureExtensions.Grid
                 }
                 return Console.ForegroundColor;
             });
+        }
+
+        public static void PrintToImage<T>(this Grid<T> grid, string filePath, IDictionary<Point, Color> colorValues, IDictionary<Point, Color> customColors, Color? backgroundColor = null)
+        {
+            var bitmap = new Image<Rgba32>(grid.MaxX, grid.MaxY);
+            for (int y = 0; y < grid.MaxY; y++)
+            {
+                for (int x = 0; x < grid.MaxX; x++)
+                {
+                    var current = new Point(x, y);
+                    if (!customColors.TryGetValue(current, out var color))
+                    {
+                        colorValues.TryGetValue(current, out color);
+                    }
+                    bitmap[x, y] = color;
+                }
+            }
+            if (backgroundColor != null)
+            {
+                bitmap.Mutate(x => x.BackgroundColor(backgroundColor.Value));
+            }
+            // resize
+            bitmap.Mutate(x => x.Resize(bitmap.Size.Width * 10, bitmap.Size.Height * 10));
+            //Task.Factory.StartNew(() =>
+            //{
+            bitmap.Save(filePath, new PngEncoder());
+            bitmap.Dispose();
+            //});
         }
 
         private static void PrintMap<T>(Grid<T> grid, Func<Point, ConsoleColor> callBack)
