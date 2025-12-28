@@ -69,7 +69,7 @@ namespace aoc_2025.Tests
         [TestCase("8", 1, "B", "2245203960", 1)]
         [TestCase("9", 1, "A", "4754955192", 1)]
         [TestCase("9", 1, "B", "TODO", 1)]
-        [TestCase("10", 1, "A", "TODO", 1)]
+        [TestCase("10", 1, "A", "461", 1)]
         [TestCase("10", 1, "B", "TODO", 1)]
         [TestCase("11", 1, "A", "TODO", 1)]
         [TestCase("11", 1, "B", "TODO", 1)]
@@ -78,6 +78,7 @@ namespace aoc_2025.Tests
         public void InputCaseTests(int day, int testNumber, string part, string expectedResult, int maxSecondsToRun)
         {
             OnlyRunIfDayReached(day);
+            OnlyRunIfValid(expectedResult);
 
             // arrange
             var solutionClass = GetSolutionClass(day);
@@ -97,6 +98,14 @@ namespace aoc_2025.Tests
                 Assert.That(result, Is.EqualTo(expectedResult));
                 Assert.That(sw.Elapsed.TotalSeconds, Is.LessThanOrEqualTo(maxSecondsToRun));
             });
+        }
+
+        private void OnlyRunIfValid(string expectedResult)
+        {
+            if (expectedResult == "TODO")
+            {
+                Assert.Ignore();
+            }
         }
 
         private static void OnlyRunIfDayReached(int day)
