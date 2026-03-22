@@ -1,5 +1,6 @@
 using aoc_2025.Interfaces;
 using aoc_2025.SolutionUtils;
+using System.Diagnostics;
 using System.Text.RegularExpressions;
 
 namespace aoc_2025.Solutions
@@ -19,7 +20,22 @@ namespace aoc_2025.Solutions
 
         public string RunPartB(string inputData)
         {
-            throw new NotImplementedException();
+            var machines = ParseUtils.ParseIntoLines(inputData).Select(Machine.FromString).ToList();
+
+            //var results = new ConcurrentBag<int>();
+            //Parallel.ForEach(machines, machine =>
+            //{
+            //    var result = machine.GetShortestCombinationBfsWithJolate();
+            //    results.Add(result);
+            //});
+            //var result = results.Sum();
+
+            var result = 0L;
+            foreach (var machine in machines)
+            {
+                result += machine.GetShortestCombinationBfsWithJolate();
+            }
+            return result.ToString();
         }
     }
 
@@ -30,17 +46,24 @@ namespace aoc_2025.Solutions
 
         public HashSet<int> TargetLightsToBeOn { get; }
 
+        public int[] TargetJoltageValues { get; }
+
         public List<Button> Buttons { get; }
 
         public int NumberOfLights { get; }
 
         private readonly object LockObject = new object();
 
-        public Machine(int numberOfLights, HashSet<int> targetState, List<Button> buttons)
+        public Machine(int numberOfLights, HashSet<int> targetState, List<Button> buttons) : this(numberOfLights, targetState, buttons, Array.Empty<int>())
+        {
+        }
+
+        public Machine(int numberOfLights, HashSet<int> targetState, List<Button> buttons, int[] targetJoltage)
         {
             NumberOfLights = numberOfLights;
             TargetLightsToBeOn = targetState;
             Buttons = buttons;
+            TargetJoltageValues = targetJoltage;
         }
 
         public static Machine FromString(string machineConfiguration)
@@ -50,12 +73,13 @@ namespace aoc_2025.Solutions
             var targetStateSymbols = targetStatePart.Skip(1).SkipLast(1).ToList();
             var targetLightsToBeOn = targetStateSymbols.Select((value, index) => (ShouldBeOn: value == OnChar, Index: index)).Where(q => q.ShouldBeOn).Select(q => q.Index).ToHashSet();
 
-            var joltagePart = splitByEmptySpace.Last();
             var buttonsPart = splitByEmptySpace.Skip(1).SkipLast(1).ToList();
             var buttons = buttonsPart.Select(Button.FromString).ToList();
 
+            var joltagePart = splitByEmptySpace.Last();
+            var targetJoltage = joltagePart.Trim('{').Trim('}').Split(",").Select(int.Parse).ToArray();
 
-            return new Machine(targetStateSymbols.Count(), targetLightsToBeOn, buttons);
+            return new Machine(targetStateSymbols.Count(), targetLightsToBeOn, buttons, targetJoltage);
         }
 
         internal int GetShortestCombinationBfs()
@@ -89,6 +113,74 @@ namespace aoc_2025.Solutions
                 }
                 statesToCheck = newStates;
             }
+        }
+
+
+
+        internal int GetShortestCombinationBfsWithJolate()
+        {
+            var statesToCheck = new List<State>{
+                new State(NumberOfLights)
+            };
+            var presses = 0;
+            while (true)
+            {
+                var newStates = new List<State>();
+                presses++;
+                if (!statesToCheck.Any())
+                {
+                    throw new InvalidOperationException("No new states to check, something went wrong!");
+                }
+                Debug.WriteLine($"Machine {this} - {presses} presses and {statesToCheck.Count} states to check..");
+                var sw = Stopwatch.StartNew();
+                foreach (var state in statesToCheck)
+                {
+                    if (this.ToString().StartsWith("[...#.]") && state.PressedButtons.SequenceEqual([0, 0, 1, 1, 1, 1, 1]))
+                    {
+                        state.ToWatch = true;
+                    }
+
+                    // press every button
+                    for (var buttonIndex = 0; buttonIndex < Buttons.Count; buttonIndex++)
+                    {
+                        var button = Buttons[buttonIndex];
+                        var newState = button.PressButton(state, buttonIndex);
+
+                        // check if wanted state
+                        if (newState.ActiveIndicatorLights.SetEquals(TargetLightsToBeOn) &&
+                            newState.JoltageState.SequenceEqual(TargetJoltageValues))
+                        {
+                            return presses;
+                        }
+                        // check if joltage can lead to abortion of current state
+                        if (JoltageTooHigh(newState.JoltageState))
+                        {
+                            continue;
+                        }
+                        //// check if already in newStates                   
+                        //if (!newStates.Any(n => n.ActiveIndicatorLights.SetEquals(newState.ActiveIndicatorLights) && n.JoltageState.SequenceEqual(newState.JoltageState)))
+                        //{
+                        //    // add to new States
+                        newStates.Add(newState);
+                        //}
+                    }
+                }
+                sw.Stop();
+                Debug.WriteLine($"Took: {sw.Elapsed}");
+                statesToCheck = newStates;
+            }
+        }
+
+        private bool JoltageTooHigh(int[] joltageState)
+        {
+            for (var index = 0; index < joltageState.Length; index++)
+            {
+                if (joltageState[index] > TargetJoltageValues[index])
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         /// <summary>
@@ -169,6 +261,11 @@ namespace aoc_2025.Solutions
             }
             return currentShortestCount;
         }
+
+        public override string ToString()
+        {
+            return "[" + string.Join("", Enumerable.Repeat(0, NumberOfLights).Select((_, index) => TargetLightsToBeOn.Contains(index) ? "#" : ".")) + "], {" + string.Join(",", TargetJoltageValues) + "}";
+        }
     }
 
     class Light
@@ -235,6 +332,59 @@ namespace aoc_2025.Solutions
             return "[" + string.Join(",", LightsToTrigger) + "]";
         }
 
+        internal State PressButton(State state, int buttonIndex)
+        {
+            var newIndicatorLightsState = PressButton(state.ActiveIndicatorLights);
+            var newJoltageState = CalculateNewJoltageState(state.JoltageState);
+            var pressedButtons = new List<int>(state.PressedButtons);
+            pressedButtons.Add(buttonIndex);
+            var newState = new State(newIndicatorLightsState, newJoltageState, pressedButtons);
+            if (state.ToWatch)
+            {
+                newState.ToWatch = true;
+            }
+            return newState;
+        }
 
+        private int[] CalculateNewJoltageState(int[] joltageState)
+        {
+            var newStateArray = new int[joltageState.Length];
+            joltageState.CopyTo(newStateArray, 0);
+            foreach (var indicatorLight in LightsToTrigger)
+            {
+                newStateArray[indicatorLight] = newStateArray[indicatorLight] + 1;
+            }
+            return newStateArray;
+        }
+    }
+
+    internal class State
+    {
+        public HashSet<int> ActiveIndicatorLights { get; set; }
+
+        public int[] JoltageState { get; set; }
+
+        public List<int> PressedButtons { get; set; }
+
+        public bool ToWatch { get; set; }
+
+        public State(int joltageStates)
+        {
+            ActiveIndicatorLights = new HashSet<int>();
+            JoltageState = new int[joltageStates];
+            PressedButtons = [];
+        }
+
+        public State(HashSet<int> indicatorLights, int[] joltageStates, List<int> pressedButtons)
+        {
+            ActiveIndicatorLights = indicatorLights;
+            JoltageState = joltageStates;
+            PressedButtons = pressedButtons;
+        }
+
+        public override string ToString()
+        {
+            return "{" + string.Join(", ", PressedButtons) + "} -> [" + string.Join(", ", ActiveIndicatorLights) + "], [" + string.Join(",", JoltageState) + "]";
+        }
     }
 }
